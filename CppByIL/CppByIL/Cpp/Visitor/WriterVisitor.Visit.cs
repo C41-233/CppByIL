@@ -1,4 +1,5 @@
 ﻿using CppByIL.Cpp.Syntax;
+using CppByIL.Cpp.Syntax.Expressions;
 using CppByIL.Cpp.Syntax.IL;
 using CppByIL.Cpp.Syntax.Precessor;
 using CppByIL.Cpp.Syntax.Statements;
@@ -8,6 +9,18 @@ namespace CppByIL.Cpp.Visitor
 {
     public partial class WriterVisitor : ISynctaxNodeVisitor
     {
+
+        public void VisitILStatement(ILStatement node)
+        {
+            EnsureNewLine();
+            node.Instruction.Visit(this);
+            EnsureNewLine();
+
+        }
+        public void VisitILInstruction(ILInstruction node)
+        {
+            Write(node.ToString()!);
+        }
 
         public void VisitIncludePrecessor(Include node)
         {
@@ -130,7 +143,7 @@ namespace CppByIL.Cpp.Visitor
             Write(type.FullName);
         }
 
-        public void VisitMethodBody(MethodBody node)
+        public void VisitBlockStatement(BlockStatement node)
         {
             OpenBrace();
             VisitChild(node);
@@ -145,10 +158,17 @@ namespace CppByIL.Cpp.Visitor
             }
         }
 
-        public void VisitILInstruction(ILInstruction node)
+        public void VisitAssignmentExpression(AssignmentExpression node)
         {
-            EnsureNewLine();
-            Write(node.ToString()!);
+            node.LeftValue.Visit(this);
+            Write(" = ");
+            node.RightValue.Visit(this);
         }
+
+        public void VisitVariableExpression(LocalVariableExpression node)
+        {
+            Write(node.Name);
+        }
+
     }
 }

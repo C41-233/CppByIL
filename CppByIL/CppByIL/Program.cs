@@ -4,6 +4,7 @@ using CppByIL.Cpp.Syntax.Precessor;
 using CppByIL.Cpp.Syntax.Statements;
 using CppByIL.Cpp.Syntax.Types;
 using CppByIL.Decompile;
+using CppByIL.Decompile.Transformer;
 using CppByIL.ILMeta;
 
 public class Program
@@ -142,8 +143,25 @@ public class Program
         }
 
         var decompiler = new ILMethodBodyDecompiler(method);
-        node.MethodBody = decompiler.Decompile();
+        var body = decompiler.Decompile();
+        MethodBodyTransform(body);
+        node.MethodBody = body;
         return node;
+    }
+
+    private static readonly ITransformer[] transformers = new ITransformer[]
+    {
+        new RemoveNopTransformer(),
+        new VariableSplitTransformer(),
+    };
+
+    private static void MethodBodyTransform(BlockStatement body)
+    {
+        var ctx = new TransformContext();
+        foreach (var transformer in transformers)
+        {
+            transformer.Run(body, ctx);
+        }
     }
 
     private static void PrepareBuild()

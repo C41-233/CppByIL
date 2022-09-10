@@ -17,7 +17,7 @@ namespace CppByIL.Decompile
 
         private ILInstruction Ldloc(int index)
         {
-            return new LocalLoad(locals[index]);
+            return Push(new LocalLoad(locals[index]));
         }
 
         private ILInstruction Stloc(int index)

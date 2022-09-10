@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CppByIL.Cpp.Syntax.IL
+﻿namespace CppByIL.Cpp.Syntax.IL
 {
     public class Ret : ILInstruction
     {
@@ -13,7 +7,6 @@ namespace CppByIL.Cpp.Syntax.IL
 
         internal Ret()
         {
-
         }
 
         internal Ret(ILInstruction operand)

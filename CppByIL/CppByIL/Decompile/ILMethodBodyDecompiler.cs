@@ -2,6 +2,7 @@
 using CppByIL.Cpp.Syntax.Statements;
 using CppByIL.ILMeta;
 using CppByIL.ILMeta.TypeSystem;
+using System.Collections.Immutable;
 using System.Reflection.Metadata;
 
 #pragma warning disable CS8618
@@ -18,6 +19,9 @@ namespace CppByIL.Decompile
         private ILVariable[] locals;
         private ILVariable[] parameters;
 
+        private ImmutableStack<ILVariable> stack;
+        private int stackSlotNumber;
+
         public ILMethodBodyDecompiler(ILMethodDefinition method)
         {
             this.method = method; 
@@ -25,19 +29,25 @@ namespace CppByIL.Decompile
             genericContext = new GenericContext();
         }
 
-        public MethodBody Decompile()
+        public BlockStatement Decompile()
         {
             InitParameters();
-            InitVariables();
+            InitLocals();
 
-            var rootBlock = new MethodBody();
+            stack = ImmutableStack<ILVariable>.Empty;
+            var rootBlock = new BlockStatement();
             var reader = body.GetILReader();
+            DoDecompile(ref reader, rootBlock);
+            return rootBlock;
+        }
+
+        private void DoDecompile(ref BlobReader reader, BlockStatement root)
+        {
             while (reader.RemainingBytes > 0)
             {
                 var instruction = DecodeNextIL(ref reader);
-                rootBlock.AppendChild(instruction);
+                root.AppendChild(new ILStatement(instruction));
             }
-            return rootBlock;
         }
 
         private void InitParameters()
@@ -50,20 +60,21 @@ namespace CppByIL.Decompile
             else
             {
                 parameters = new ILVariable[method.Parameters.Count + 1];
-                parameters[0] = new ILVariable(method.DeclaringType, "this");
+                parameters[0] = new ILVariable(ILVariableKind.Parameter, method.DeclaringType, "this");
                 next++;
             }
             for (var i=0; i<method.Parameters.Count; i++, next++)
             {
                 var parameter = method.Parameters[i];
                 parameters[next] = new ILVariable(
+                    ILVariableKind.Parameter,
                     parameter.ParameterType,
                     parameter.Name
                 );
             }
         }
 
-        private void InitVariables()
+        private void InitLocals()
         {
             var signature = method.Assembly.MetaReader.GetStandaloneSignature(body.LocalSignature);
             var locals = signature.DecodeLocalSignature(TypeProvider.Instance, genericContext);
@@ -71,7 +82,7 @@ namespace CppByIL.Decompile
             for (var i = 0; i < locals.Length; i++)
             {
                 var local = locals[i];
-                this.locals[i] = new ILVariable(local, $"local{i}");
+                this.locals[i] = new ILVariable(ILVariableKind.Local, local, $"local{i}");
             }
         }
 
@@ -117,13 +128,19 @@ namespace CppByIL.Decompile
 
         private ILInstruction Push(ILInstruction inst)
         {
-            var variable = new ILVariable(ILTypeReference.Get(PrimitiveTypeCode.Int32), "stack");
+            var variable = new ILVariable(
+                ILVariableKind.StackSlot, 
+                ILTypeReference.Get(PrimitiveTypeCode.Int32),
+                $"stack{stackSlotNumber}"
+            );
+            stackSlotNumber++;
+            stack = stack.Push(variable);
             return new LocalStore(variable, inst);
         }
 
         private ILInstruction Pop()
         {
-            var variable = new ILVariable(ILTypeReference.Get(PrimitiveTypeCode.Int32), "pop");
+            stack = stack.Pop(out var variable);
             return new LocalLoad(variable);
         }
     }

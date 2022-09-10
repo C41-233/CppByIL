@@ -6,16 +6,16 @@ namespace CppByIL.Cpp.Syntax.IL
     public class LocalLoad : ILInstruction
     {
 
-        private ILVariable variable;
+        public ILVariable Variable { get; }
 
         internal LocalLoad(ILVariable variable)
         {
-            this.variable = variable;
+            Variable = variable;
         }
 
         public override string ToString()
         {
-            return $"IL_Load({variable.Name})";
+            return $"IL_Load({Variable.Name})";
         }
     }
 

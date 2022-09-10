@@ -14,7 +14,7 @@ namespace CppByIL.Cpp.Syntax.Types
         public readonly IList<MethodParameter> ParameterList = new List<MethodParameter>();
         public string Name { get; }
 
-        public MethodBody MethodBody { get; set; } = MethodBody.Empty;
+        public BlockStatement MethodBody { get; set; } = BlockStatement.Empty;
 
         public MethodDefinition(string name)
         {

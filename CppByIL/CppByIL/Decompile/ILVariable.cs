@@ -2,17 +2,26 @@
 
 namespace CppByIL.Decompile
 {
-    internal class ILVariable
+    public class ILVariable
     {
 
+        public ILVariableKind Kind { get; }
         public ILTypeReference Type { get; }
         public string Name { get; }
 
-        public ILVariable(ILTypeReference type, string name)
+        public ILVariable(ILVariableKind kind, ILTypeReference type, string name)
         {
+            Kind = kind;
             Type = type;
             Name = name;
         }
+    }
+
+    public enum ILVariableKind
+    {
+        Parameter,
+        Local,
+        StackSlot,
     }
 
 }

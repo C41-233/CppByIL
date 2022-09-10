@@ -2,13 +2,16 @@
 
 namespace CppByIL.Cpp.Syntax.Statements
 {
-    public class MethodBody : SyntaxNode
+
+    public class BlockStatement : Statement
     {
-        public static readonly MethodBody Empty = new MethodBody();
+        public static readonly BlockStatement Empty = new BlockStatement();
 
         public override void Visit(ISynctaxNodeVisitor visitor)
         {
-            visitor.VisitMethodBody(this);
+            visitor.VisitBlockStatement(this);
         }
+
     }
+
 }

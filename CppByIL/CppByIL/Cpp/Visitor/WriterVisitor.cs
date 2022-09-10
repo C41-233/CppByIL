@@ -65,6 +65,7 @@ namespace CppByIL.Cpp.Visitor
         {
             EnsureNewLine();
             Write("{");
+            EnsureNewLine();
             PushPad();
         }
 
