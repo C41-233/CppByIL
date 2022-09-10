@@ -4,7 +4,7 @@ using CppByIL.Cpp.Syntax.Types;
 
 namespace CppByIL.Cpp.Visitor
 {
-    public partial class WriterVisitor : ISynctaxNodeVisitor
+    public partial class WriterVisitor
     {
 
         private readonly TextWriter writer;
@@ -65,27 +65,14 @@ namespace CppByIL.Cpp.Visitor
         {
             EnsureNewLine();
             Write("{");
+            PushPad();
         }
 
         private void CloseBrace()
         {
+            PopPad();
             EnsureNewLine();
             Write("}");
-        }
-
-        private void Semicolon()
-        {
-            Write(";");
-        }
-
-        private void Comma()
-        {
-            Write(",");
-        }
-
-        private void Space()
-        {
-            Write(" ");
         }
 
         private void PushPad()

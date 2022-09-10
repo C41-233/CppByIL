@@ -1,9 +1,5 @@
-﻿using CppByIL.Cpp.Visitor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CppByIL.Cpp.Syntax.Statements;
+using CppByIL.Cpp.Visitor;
 
 namespace CppByIL.Cpp.Syntax.Types
 {
@@ -17,6 +13,8 @@ namespace CppByIL.Cpp.Syntax.Types
 
         public readonly IList<MethodParameter> ParameterList = new List<MethodParameter>();
         public string Name { get; }
+
+        public MethodBody MethodBody { get; set; } = MethodBody.Empty;
 
         public MethodDefinition(string name)
         {

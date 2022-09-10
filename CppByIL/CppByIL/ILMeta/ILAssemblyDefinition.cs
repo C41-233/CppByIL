@@ -19,13 +19,13 @@ namespace CppByIL.ILMeta
             return new ILAssemblyDefinition(reader);
         }
 
-        private PEReader peReader;
+        internal PEReader PEReader { get; }
         
         internal MetadataReader MetaReader { get; }
 
         private ILAssemblyDefinition(PEReader reader)
         {
-            peReader = reader;
+            PEReader = reader;
             MetaReader = reader.GetMetadataReader();
             foreach (var handle in MetaReader.TypeDefinitions)
             {

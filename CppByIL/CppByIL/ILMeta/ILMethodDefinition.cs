@@ -7,19 +7,19 @@ namespace CppByIL.ILMeta
     public class ILMethodDefinition
     {
 
-        private ILAssemblyDefinition assembly;
-        private MethodDefinition method;
+        internal ILAssemblyDefinition Assembly;
+        internal MethodDefinition Method;
 
         internal ILMethodDefinition(ILAssemblyDefinition assembly, ILTypeDefinition type, MethodDefinition method)
         {
-            this.assembly = assembly;
-            this.method = method;
+            this.Assembly = assembly;
+            this.Method = method;
             DeclaringType = type;
         }
 
         public ILTypeDefinition DeclaringType { get; }
 
-        public string Name => assembly.MetaReader.GetString(method.Name);
+        public string Name => Assembly.MetaReader.GetString(Method.Name);
 
         private void CheckInitSignature()
         {
@@ -30,20 +30,20 @@ namespace CppByIL.ILMeta
 
             initSignature = true;
             var genericContext = new GenericContext();
-            var signature = method.DecodeSignature(TypeProvider.Instance, genericContext);
+            var signature = Method.DecodeSignature(TypeProvider.Instance, genericContext);
             returnType = signature.ReturnType;
 
             var list = new List<Parameter>();
-            foreach (var handle in method.GetParameters())
+            foreach (var handle in Method.GetParameters())
             {
-                list.Add(assembly.MetaReader.GetParameter(handle));
+                list.Add(Assembly.MetaReader.GetParameter(handle));
             }
 
             parameters = new();
             for (int i = 0; i < signature.ParameterTypes.Length; i++)
             {
                 var type = signature.ParameterTypes[i];
-                parameters.Add(new ILMethodParameter(assembly, list[i], type));
+                parameters.Add(new ILMethodParameter(Assembly, list[i], type));
             }
         }
 
@@ -56,7 +56,7 @@ namespace CppByIL.ILMeta
             }
         }
 
-        public IEnumerable<ILMethodParameter> Parameters
+        public IReadOnlyList<ILMethodParameter> Parameters
         {
             get
             {
@@ -73,9 +73,14 @@ namespace CppByIL.ILMeta
 
         public bool IsConstructor => Name == ".ctor" && IsRTSpecialName;
 
-        public bool IsStatic => (method.Attributes & MethodAttributes.Static) != 0;
+        public bool IsStatic => (Method.Attributes & MethodAttributes.Static) != 0;
 
-        public bool IsRTSpecialName => (method.Attributes & MethodAttributes.RTSpecialName) != 0;
+        public bool IsRTSpecialName => (Method.Attributes & MethodAttributes.RTSpecialName) != 0;
 
+        public MethodBodyBlock GetMethodBody()
+        {
+            var body = Assembly.PEReader.GetMethodBody(Method.RelativeVirtualAddress);
+            return body;
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using CppByIL.Cpp.Project;
 using CppByIL.Cpp.Syntax;
 using CppByIL.Cpp.Syntax.Precessor;
+using CppByIL.Cpp.Syntax.Statements;
 using CppByIL.Cpp.Syntax.Types;
+using CppByIL.Decompile;
 using CppByIL.ILMeta;
 
 public class Program
@@ -139,6 +141,8 @@ public class Program
             ));
         }
 
+        var decompiler = new ILMethodBodyDecompiler(method);
+        node.MethodBody = decompiler.Decompile();
         return node;
     }
 

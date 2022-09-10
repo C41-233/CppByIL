@@ -1,10 +1,12 @@
 ﻿using CppByIL.Cpp.Syntax;
+using CppByIL.Cpp.Syntax.IL;
 using CppByIL.Cpp.Syntax.Precessor;
+using CppByIL.Cpp.Syntax.Statements;
 using CppByIL.Cpp.Syntax.Types;
 
 namespace CppByIL.Cpp.Visitor
 {
-    public partial class WriterVisitor
+    public partial class WriterVisitor : ISynctaxNodeVisitor
     {
 
         public void VisitIncludePrecessor(Include node)
@@ -25,14 +27,11 @@ namespace CppByIL.Cpp.Visitor
         {
             EnsureNewLine();
             NewLine();
-            var ns = node.Value.Replace(".", "::");
-            Write($"namespace {ns}");
+            Write($"namespace {node.Value}");
             OpenBrace();
-            PushPad();
             ForceNewLine();
             VisitChild(node);
             ForceNewLine();
-            PopPad();
             CloseBrace();
         }
 
@@ -41,22 +40,20 @@ namespace CppByIL.Cpp.Visitor
             EnsureNewLine();
             Write($"class {classDeclaration.Name}");
             OpenBrace();
-            PushPad();
 
             NewLine();
             VisitChild(classDeclaration);
             NewLine();
 
-            PopPad();
             CloseBrace();
-            Semicolon();
+            Write(";");
         }
 
         public void VisitMethodDefinition(MethodDefinition node)
         {
             ForceNewLine();
             node.ReturnType.Visit(this);
-            Space();
+            Write(" ");
             if (node.DeclaringType != null)
             {
                 node.DeclaringType.Visit(this);
@@ -78,23 +75,13 @@ namespace CppByIL.Cpp.Visitor
                     }
                     else
                     {
-                        Comma();
-                        Space();
+                        Write(", ");
                     }
                     parameter.Visit(this);
                 }
             }
             Write(")");
-            NewLine();
-            OpenBrace();
-            PushPad();
-            NewLine();
-            {
-                Write("return 0;");
-            }
-            PopPad();
-            NewLine();
-            CloseBrace();
+            node.MethodBody.Visit(this);
         }
 
         public void VisitMethodDeclaration(MethodDeclaration node)
@@ -102,14 +89,14 @@ namespace CppByIL.Cpp.Visitor
             EnsureNewLine();
 
             Write("PUBLIC");
-            Space();
+            Write(" ");
             if (node.IsStatic)
             {
                 Write("static");
-                Space();
+                Write(" ");
             }
             node.ReturnType.Visit(this);
-            Space();
+            Write(" ");
             Write(node.Name);
             Write("(");
             {
@@ -122,26 +109,32 @@ namespace CppByIL.Cpp.Visitor
                     }
                     else
                     {
-                        Comma();
-                        Space();
+                        Write(", ");
                     }
                     parameter.Visit(this);
                 }
             }
             Write(")");
-            Semicolon();
+            Write(";");
         }
 
         public void VisitMethodParameter(MethodParameter node)
         {
             node.ParameterType.Visit(this);
-            Space();
+            Write(" ");
             Write(node.Name);
         }
 
         public void VisitTypeReference(TypeReference type)
         {
             Write(type.FullName);
+        }
+
+        public void VisitMethodBody(MethodBody node)
+        {
+            OpenBrace();
+            VisitChild(node);
+            CloseBrace();
         }
 
         private void VisitChild(SyntaxNode node)
@@ -152,5 +145,10 @@ namespace CppByIL.Cpp.Visitor
             }
         }
 
+        public void VisitILInstruction(ILInstruction node)
+        {
+            EnsureNewLine();
+            Write(node.ToString()!);
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using CppByIL.Cpp.Syntax.Precessor;
+﻿using CppByIL.Cpp.Syntax.IL;
+using CppByIL.Cpp.Syntax.Precessor;
+using CppByIL.Cpp.Syntax.Statements;
 using CppByIL.Cpp.Syntax.Types;
 
 namespace CppByIL.Cpp.Visitor
@@ -14,6 +16,8 @@ namespace CppByIL.Cpp.Visitor
         void VisitMethodDeclaration(MethodDeclaration node);
         void VisitMethodParameter(MethodParameter node);
         void VisitTypeReference(TypeReference node);
+        void VisitMethodBody(MethodBody node);
+        void VisitILInstruction(ILInstruction node);
     }
 
 }
