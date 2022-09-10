@@ -1,4 +1,4 @@
-#include <TestDLL/Test.h>
+#include <TestDLL.Test.h>
 #include <iostream>
 
 int main()

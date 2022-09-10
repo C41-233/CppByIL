@@ -15,7 +15,7 @@ namespace CppByIL.Cpp.Syntax.Types
         public bool IsStatic { get; init; }
 
         public TypeReference ReturnType { get; init; } = TypeReference.Void;
-        public readonly IList<MethodParameterDeclaration> ParameterDeclarations = new List<MethodParameterDeclaration>();
+        public readonly IList<MethodParameter> ParameterList = new List<MethodParameter>();
 
         public override void Visit(ISynctaxNodeVisitor visitor)
         {

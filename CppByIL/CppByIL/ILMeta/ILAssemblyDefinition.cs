@@ -23,15 +23,14 @@ namespace CppByIL.ILMeta
         
         internal MetadataReader MetaReader { get; }
 
-        internal TypeProvider TypeProvider = new TypeProvider();
-
         private ILAssemblyDefinition(PEReader reader)
         {
             peReader = reader;
             MetaReader = reader.GetMetadataReader();
             foreach (var handle in MetaReader.TypeDefinitions)
             {
-                types.Add(handle, new ILTypeDefinition(this, handle));
+                var definition = new ILTypeDefinition(this, handle);
+                types.Add(handle, definition);
             }
         }
 
@@ -50,6 +49,11 @@ namespace CppByIL.ILMeta
                     yield return type;
                 }
             }
+        }
+
+        public ILTypeDefinition? GetTypeDefinition(TypeDefinitionHandle handle)
+        {
+            return types.GetValueOrDefault(handle);
         }
 
     }

@@ -3,13 +3,13 @@ using CppByIL.Cpp.Syntax;
 using CppByIL.Cpp.Syntax.Precessor;
 using CppByIL.Cpp.Syntax.Types;
 using CppByIL.ILMeta;
-using System.Text;
 
 public class Program
 {
     
     private const string OutputBase = @"D:\Workspace\CppByIL\ILLib\StaticLib";
     private static string OutputHeaderBase = Path.Combine(OutputBase, "include");
+    private static string OutputSourceBase = Path.Combine(OutputBase, "src");
     private static string OutputVcxproj = Path.Combine(OutputBase, "StaticLib.vcxproj");
 
     public static void Main(string[] args)
@@ -21,39 +21,40 @@ public class Program
 
         var group = new ItemGroup();
         vc.Project.Groups.Add(group);
-        vc.Project.Groups.Add(new ItemGroup
-        {
-            ClCompiles = {
-                new ClCompile
-                {
-                    Include = @"src\TestDLL\Test.cpp",
-                } 
-            },
-        });
 
-        GenerateHeaders(ass, group);
+        GenerateAssembly(ass, group);
         vc.WriteTo(OutputVcxproj);
     }
 
-    private static void GenerateHeaders(ILAssemblyDefinition ass, ItemGroup vc)
+    private static void GenerateAssembly(ILAssemblyDefinition ass, ItemGroup vc)
     {
         foreach (var type in ass.TopLevelTypes)
         {
-            var tree = GenerateHeaderTree(type);
+            var headerTree = GenerateHeader(type);
+            var sourceTree = GenerateSource(type);
 
-            var fullname = SyntaxUtils.ILFullNameToCppFullName(type.FullName);
-            var filename = fullname.Replace("::", Path.DirectorySeparatorChar.ToString()) + ".h";
-            var output = Path.Combine(OutputHeaderBase, filename);
-            Directory.CreateDirectory(Path.GetDirectoryName(output)!);
-            File.WriteAllText(output, tree.ToString());
+            var fullname = SyntaxUtils.ILFullNameToCppPathName(type.FullName);
+            var headerName = fullname + ".h";
+            var sourceName = fullname + ".cpp";
+
+            var headerFile = Path.Combine(OutputHeaderBase, headerName);
+            var sourceFile = Path.Combine(OutputSourceBase, sourceName);
+
+            File.WriteAllText(headerFile, headerTree.ToString());
             vc.ClIncludes.Add(new ClInclude
             {
-                Include = Path.Combine("include", filename),
+                Include = Path.Combine("include", headerName),
+            });
+
+            File.WriteAllText(sourceFile, sourceTree.ToString());
+            vc.ClCompiles.Add(new ClCompile
+            {
+                Include = Path.Combine("src", sourceName),
             });
         }
     }
 
-    private static SyntaxTree GenerateHeaderTree(ILTypeDefinition type)
+    private static SyntaxTree GenerateHeader(ILTypeDefinition type)
     {
         var tree = new SyntaxTree();
         tree.AppendChild(new Pragma("once"));
@@ -73,8 +74,8 @@ public class Program
         tree.AppendChild(rootDeclaration);
 
         var name = SyntaxUtils.ILFullNameToCppFullName(type.Name);
-        var classDeclaration = new ClassDeclaration(name);
-        rootDeclaration.AppendChild(classDeclaration);
+        var headerClassDeclaration = new ClassDeclaration(name);
+        rootDeclaration.AppendChild(headerClassDeclaration);
 
         foreach (var method in type.Methods)
         {
@@ -87,20 +88,58 @@ public class Program
                 ReturnType = TypeReference.Get(method.ReturnType),
                 IsStatic = method.IsStatic,
             };
-            classDeclaration.AppendChild(methodDeclaration);
+            headerClassDeclaration.AppendChild(methodDeclaration);
 
             foreach (var parameter in method.Parameters)
             {
-                var parameterDeclaration = new MethodParameterDeclaration(
+                var parameterDeclaration = new MethodParameter(
                     parameter.Name, 
                     TypeReference.Get(parameter.ParameterType)
                 );
-                methodDeclaration.ParameterDeclarations.Add(parameterDeclaration);
+                methodDeclaration.ParameterList.Add(parameterDeclaration);
             }
         }
 
 
         return tree;
+    }
+
+    private static SyntaxTree GenerateSource(ILTypeDefinition type)
+    {
+        var tree = new SyntaxTree();
+
+        tree.AppendChild(new Include("il.h"));
+        tree.AppendChild(new Include(SyntaxUtils.ILFullNameToCppPathName(type.FullName) + ".h"));
+
+        foreach (var method in type.Methods)
+        {
+            if (method.IsConstructor)
+            {
+                continue;
+            }
+            tree.AppendChild(DecodeMethod(method));
+        }
+
+        return tree;
+    }
+
+    private static SyntaxNode DecodeMethod(ILMethodDefinition method)
+    {
+        var node = new MethodDefinition(method.Name)
+        {
+            ReturnType = TypeReference.Get(method.ReturnType),
+            DeclaringType = TypeReference.Get(method.DeclaringType),
+        };
+
+        foreach (var parameter in method.Parameters) 
+        {
+            node.ParameterList.Add(new MethodParameter(
+                parameter.Name,
+                TypeReference.Get(parameter.ParameterType)
+            ));
+        }
+
+        return node;
     }
 
     private static void PrepareBuild()
@@ -110,6 +149,12 @@ public class Program
             Directory.Delete(OutputHeaderBase, true);
         }
         Directory.CreateDirectory(OutputHeaderBase);
+
+        if (Directory.Exists(OutputSourceBase))
+        {
+            Directory.Delete(OutputSourceBase, true);
+        }
+        Directory.CreateDirectory(OutputSourceBase);
     }
 
 }

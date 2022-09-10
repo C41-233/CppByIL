@@ -10,11 +10,14 @@ namespace CppByIL.ILMeta
         private ILAssemblyDefinition assembly;
         private MethodDefinition method;
 
-        internal ILMethodDefinition(ILAssemblyDefinition assembly, MethodDefinition method)
+        internal ILMethodDefinition(ILAssemblyDefinition assembly, ILTypeDefinition type, MethodDefinition method)
         {
             this.assembly = assembly;
             this.method = method;
+            DeclaringType = type;
         }
+
+        public ILTypeDefinition DeclaringType { get; }
 
         public string Name => assembly.MetaReader.GetString(method.Name);
 
@@ -27,7 +30,7 @@ namespace CppByIL.ILMeta
 
             initSignature = true;
             var genericContext = new GenericContext();
-            var signature = method.DecodeSignature(assembly.TypeProvider, genericContext);
+            var signature = method.DecodeSignature(TypeProvider.Instance, genericContext);
             returnType = signature.ReturnType;
 
             var list = new List<Parameter>();

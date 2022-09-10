@@ -6,7 +6,11 @@ namespace CppByIL.ILMeta.TypeSystem;
 internal class TypeProvider : ISignatureTypeProvider<ILTypeReference, GenericContext>
 {
 
-    private Dictionary<string, ILTypeReference> pool = new Dictionary<string, ILTypeReference>();
+    public static readonly TypeProvider Instance = new TypeProvider();
+
+    private TypeProvider()
+    {
+    }
 
     public ILTypeReference GetArrayType(ILTypeReference elementType, ArrayShape shape)
     {

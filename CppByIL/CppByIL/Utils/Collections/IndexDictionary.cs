@@ -1,4 +1,6 @@
-﻿namespace CppByIL.Utils.Collections;
+﻿using System.Reflection.Metadata;
+
+namespace CppByIL.Utils.Collections;
 
 internal sealed class IndexDictionary<TKey, TValue> where TKey : notnull
 {
@@ -21,5 +23,10 @@ internal sealed class IndexDictionary<TKey, TValue> where TKey : notnull
     {
         dict.Add(key, value);
         list.Add(key);
+    }
+
+    public TValue? GetValueOrDefault(TKey handle)
+    {
+        return dict.GetValueOrDefault(handle);
     }
 }

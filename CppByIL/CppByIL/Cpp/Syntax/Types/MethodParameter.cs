@@ -1,16 +1,15 @@
 ﻿using CppByIL.Cpp.Visitor;
-using CppByIL.ILMeta.TypeSystem;
 
 namespace CppByIL.Cpp.Syntax.Types
 {
-    public class MethodParameterDeclaration : SyntaxNode
+    public class MethodParameter : SyntaxNode
     {
 
         public string Name { get; }
 
         public TypeReference ParameterType { get; }
 
-        public MethodParameterDeclaration(string name, TypeReference type)
+        public MethodParameter(string name, TypeReference type)
         {
             Name = name;
             ParameterType = type;
@@ -18,7 +17,7 @@ namespace CppByIL.Cpp.Syntax.Types
 
         public override void Visit(ISynctaxNodeVisitor visitor)
         {
-            visitor.VisitMethodParameterDeclaration(this);
+            visitor.VisitMethodParameter(this);
         }
     }
 }

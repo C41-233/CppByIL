@@ -26,6 +26,23 @@ namespace CppByIL.Cpp.Syntax
             return sb.ToString();
         }
 
+        public static string ILFullNameToCppPathName(string value)
+        {
+            var sb = new StringBuilder();
+            foreach (var ch in value)
+            {
+                if (ch == '.')
+                {
+                    sb.Append(".");
+                }
+                else
+                {
+                    AppendCppCharacter(sb, ch);
+                }
+            }
+            return sb.ToString();
+        }
+
         private static void AppendCppCharacter(StringBuilder sb, char ch)
         {
             if (IsCppCharacter(ch))

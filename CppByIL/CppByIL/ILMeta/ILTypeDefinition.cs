@@ -1,4 +1,5 @@
-﻿using CppByIL.Utils.Collections;
+﻿using CppByIL.ILMeta.TypeSystem;
+using CppByIL.Utils.Collections;
 using System.Reflection.Metadata;
 
 namespace CppByIL.ILMeta
@@ -6,6 +7,11 @@ namespace CppByIL.ILMeta
 
     public class ILTypeDefinition
     {
+
+        public static implicit operator ILTypeReference(ILTypeDefinition self)
+        {
+            return ILTypeReference.Get(self.FullName);
+        }
 
         private ILAssemblyDefinition assembly;
         private TypeDefinition definition;
@@ -69,7 +75,7 @@ namespace CppByIL.ILMeta
             foreach (var handle in definition.GetMethods())
             {
                 var method = assembly.MetaReader.GetMethodDefinition(handle);
-                methods.Add(handle, new ILMethodDefinition(assembly, method));
+                methods.Add(handle, new ILMethodDefinition(assembly, this, method));
             }
         }
 
