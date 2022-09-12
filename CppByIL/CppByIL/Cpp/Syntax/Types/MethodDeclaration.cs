@@ -14,10 +14,10 @@ namespace CppByIL.Cpp.Syntax.Types
 
         public bool IsStatic { get; init; }
 
-        public TypeReference ReturnType { get; init; } = TypeReference.Void;
+        public CppTypeReference ReturnType { get; init; } = CppTypeReference.Void;
         public readonly IList<MethodParameter> ParameterList = new List<MethodParameter>();
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitMethodDeclaration(this);
         }

@@ -17,5 +17,10 @@ namespace CppByIL.Decompile
             return (ILOpCode)(opCodeByte == 0xFE ? 0xFE00 + reader.ReadByte() : opCodeByte);
         }
 
+        public static int DecodeBranchTarget(ref BlobReader reader, ILOpCode opCode)
+        {
+            return (opCode.GetBranchOperandSize() == 4 ? reader.ReadInt32() : reader.ReadSByte()) + reader.Offset;
+        }
+
     }
 }

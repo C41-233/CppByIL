@@ -12,7 +12,7 @@ namespace CppByIL.Cpp.Syntax.Types
             Name = name;
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitClassDeclaration(this);
         }

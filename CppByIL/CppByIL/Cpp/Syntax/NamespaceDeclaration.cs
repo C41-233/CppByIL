@@ -11,7 +11,7 @@ public class NamespaceDeclaration : SyntaxNode
         Value = value;
     }
 
-    public override void Visit(ISynctaxNodeVisitor visitor)
+    public override void Visit(Visitor visitor)
     {
         visitor.VisitNamespaceDeclaration(this);
     }

@@ -10,7 +10,7 @@ namespace CppByIL.Cpp.Syntax
         public override string ToString()
         {
             var writer = new StringWriter();
-            var visitor = new WriterVisitor(writer);
+            var visitor = new CppWriterVisitor(writer);
             foreach (var child in Children)
             {
                 child.Visit(visitor);
@@ -18,7 +18,7 @@ namespace CppByIL.Cpp.Syntax
             return writer.ToString();
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
         }
 

@@ -1,35 +1,55 @@
 ﻿using CppByIL.Cpp.Syntax.IL;
+using CppByIL.ILMeta.TypeSystem;
+using System.Reflection.Metadata;
 
 namespace CppByIL.Decompile
 {
     partial class ILMethodBodyDecompiler
     {
 
-        private ILInstruction Nop()
+        private ILStatement Nop()
         {
-            return new Nop();
+            return new ILNop();
         }
 
-        private ILInstruction Ldarg(int index)
+        private ILStatement Ldarg(int index)
         {
-            return Push(new LocalLoad(parameters[index]));
+            return Push(new ILLocalLoad(parameters[index]));
         }
 
-        private ILInstruction Ldloc(int index)
+        private ILStatement Ldloc(int index)
         {
-            return Push(new LocalLoad(locals[index]));
+            return Push(new ILLocalLoad(locals[index]));
         }
 
-        private ILInstruction Stloc(int index)
+        private ILStatement Stloc(int index)
         {
-            return new LocalStore(locals[index], Pop());
+            return new ILLocalStore(locals[index], Pop());
         }
 
-        private ILInstruction BinaryNumeric(BinaryNumericOperator op)
+        private ILStatement BinaryNumeric(BinaryNumericOperator op)
         {
             var y = Pop();
             var x = Pop();
-            return Push(new BinaryNumericInstruction(op, x, y));
+            return Push(new ILBinaryNumericInstruction(op, x, y));
+        }
+
+        private ILStatement Br(ref BlobReader reader, ILOpCode code)
+        {
+            var offset = ILParser.DecodeBranchTarget(ref reader, code);
+            return new ILBranch(offset);
+        }
+
+        private ILStatement Ret()
+        {
+            if (method.ReturnType == ILPrimitiveTypeReference.Void)
+            {
+                return new ILRet();
+            }
+            else
+            {
+                return new ILRet(Pop());
+            }
         }
 
     }

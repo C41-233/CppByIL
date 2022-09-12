@@ -33,6 +33,29 @@ namespace CppByIL.Cpp.Syntax
             }
         }
 
+        public void InsertChildAfter(SyntaxNode child, SyntaxNode node)
+        {
+            if (child.Parent != this)
+            {
+                throw new InvalidOperationException();
+            }
+            if (node.Parent != null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            node.Parent = this;
+
+            var after = child.NextSibling;
+            if (after != null)
+            {
+                node.NextSibling = after;
+                after.Prevsibling = node;
+            }
+            child.NextSibling = node;
+            node.Prevsibling = child;
+        }
+
         public void ReplaceSelfInParent(SyntaxNode node)
         {
             if (Parent == null)
@@ -42,7 +65,7 @@ namespace CppByIL.Cpp.Syntax
             Parent.ReplaceChild(this, node);
         }
 
-        private void ReplaceChild(SyntaxNode from, SyntaxNode to)
+        public void ReplaceChild(SyntaxNode from, SyntaxNode to)
         {
             if (from.Parent != this)
             {
@@ -66,9 +89,6 @@ namespace CppByIL.Cpp.Syntax
             {
                 from.NextSibling.Prevsibling = to;
             }
-
-            to.FirstChild = from.FirstChild;
-            to.LastChild = from.LastChild;
 
             if (FirstChild == from)
             {
@@ -134,7 +154,22 @@ namespace CppByIL.Cpp.Syntax
             }
         }
 
-        public abstract void Visit(ISynctaxNodeVisitor visitor);
+        public virtual IEnumerable<SyntaxNode> VisitNodes
+        {
+            get
+            {
+                foreach (var node in Children)
+                {
+                    yield return node;
+                    foreach (var child in node.VisitNodes)
+                    {
+                        yield return child;
+                    }
+                }
+            }
+        }
+
+        public abstract void Visit(Visitor.Visitor visitor);
 
     }
 }

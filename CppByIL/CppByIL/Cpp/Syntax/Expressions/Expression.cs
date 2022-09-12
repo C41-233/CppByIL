@@ -2,7 +2,16 @@
 
 namespace CppByIL.Cpp.Syntax.Expressions
 {
-    public abstract class Expression : Statement
+    public abstract class Expression : SyntaxNode
     {
+    }
+
+    public abstract class LeftValueExpression : Expression
+    {
+
+    }
+
+    public abstract class RightValueExpression : Expression 
+    { 
     }
 }

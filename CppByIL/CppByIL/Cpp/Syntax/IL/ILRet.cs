@@ -1,17 +1,19 @@
-﻿namespace CppByIL.Cpp.Syntax.IL
+﻿using CppByIL.Cpp.Syntax.Expressions;
+
+namespace CppByIL.Cpp.Syntax.IL
 {
-    public class Ret : ILInstruction
+    public class ILRet : ILStatement
     {
 
-        public ILInstruction? Operand { get; }
+        public RightValueExpression? Operand => (RightValueExpression?)FirstChild;
 
-        internal Ret()
+        internal ILRet()
         {
         }
 
-        internal Ret(ILInstruction operand)
+        internal ILRet(ILInstruction operand)
         {
-            Operand = operand;
+            AppendChild(operand);
         }
 
         public override string ToString()

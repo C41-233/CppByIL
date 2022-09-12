@@ -1,6 +1,6 @@
 ﻿namespace CppByIL.Cpp.Syntax.IL
 {
-    public class Nop : ILInstruction
+    public class ILNop : ILStatement
     {
 
         public override string ToString()

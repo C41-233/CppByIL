@@ -7,36 +7,36 @@ using CppByIL.Cpp.Syntax.Types;
 
 namespace CppByIL.Cpp.Visitor
 {
-    public partial class WriterVisitor : ISynctaxNodeVisitor
+    public partial class CppWriterVisitor : TextWriterVisitor
     {
 
-        public void VisitILStatement(ILStatement node)
+        public override void VisitILStatement(ILStatement node)
         {
             EnsureNewLine();
-            node.Instruction.Visit(this);
+            Write(node.ToString()!);
             EnsureNewLine();
 
         }
-        public void VisitILInstruction(ILInstruction node)
+        public override void VisitILInstruction(ILInstruction node)
         {
             Write(node.ToString()!);
         }
 
-        public void VisitIncludePrecessor(Include node)
+        public override void VisitIncludePrecessor(Include node)
         {
             EnsureNewLine();
             Write($"#include <{node.FileName}>");
             NewLine();
         }
 
-        public void VisitPragmaPrecessor(Pragma node)
+        public override void VisitPragmaPrecessor(Pragma node)
         {
             EnsureNewLine();
             Write($"#pragma {node.Value}");
             NewLine();
         }
 
-        public void VisitNamespaceDeclaration(NamespaceDeclaration node)
+        public override void VisitNamespaceDeclaration(NamespaceDeclaration node)
         {
             EnsureNewLine();
             NewLine();
@@ -48,7 +48,7 @@ namespace CppByIL.Cpp.Visitor
             CloseBrace();
         }
 
-        public void VisitClassDeclaration(ClassDeclaration classDeclaration)
+        public override void VisitClassDeclaration(ClassDeclaration classDeclaration)
         {
             EnsureNewLine();
             Write($"class {classDeclaration.Name}");
@@ -62,7 +62,7 @@ namespace CppByIL.Cpp.Visitor
             Write(";");
         }
 
-        public void VisitMethodDefinition(MethodDefinition node)
+        public override void VisitMethodDefinition(MethodDefinition node)
         {
             ForceNewLine();
             node.ReturnType.Visit(this);
@@ -97,7 +97,7 @@ namespace CppByIL.Cpp.Visitor
             node.MethodBody.Visit(this);
         }
 
-        public void VisitMethodDeclaration(MethodDeclaration node)
+        public override void VisitMethodDeclaration(MethodDeclaration node)
         {
             EnsureNewLine();
 
@@ -131,43 +131,94 @@ namespace CppByIL.Cpp.Visitor
             Write(";");
         }
 
-        public void VisitMethodParameter(MethodParameter node)
+        public override void VisitMethodParameter(MethodParameter node)
         {
             node.ParameterType.Visit(this);
             Write(" ");
             Write(node.Name);
         }
 
-        public void VisitTypeReference(TypeReference type)
+        public override void VisitTypeReference(CppTypeReference type)
         {
             Write(type.FullName);
         }
 
-        public void VisitBlockStatement(BlockStatement node)
-        {
-            OpenBrace();
-            VisitChild(node);
-            CloseBrace();
-        }
-
-        private void VisitChild(SyntaxNode node)
-        {
-            foreach (var child in node.Children)
-            {
-                child.Visit(this);
-            }
-        }
-
-        public void VisitAssignmentExpression(AssignmentExpression node)
+        public override void VisitAssignmentExpression(AssignmentExpression node)
         {
             node.LeftValue.Visit(this);
             Write(" = ");
             node.RightValue.Visit(this);
         }
 
-        public void VisitVariableExpression(LocalVariableExpression node)
+        public override void VisitLocalVariableReadExpression(LocalVariableReadExpression node)
         {
             Write(node.Name);
+        }
+
+        public override void VisitExpressionStatement(ExpressionStatement node)
+        {
+            EnsureNewLine();
+            node.Expression.Visit(this);
+            Write(";");
+            EnsureNewLine();
+        }
+
+        public override void VisitBinaryExpression(RightValueBinaryExpression node)
+        {
+            node.Left.Visit(this);
+            Write(" ");
+            switch (node.Operator)
+            {
+                case BinaryOperator.Add:
+                    Write("+");
+                    break;
+                case BinaryOperator.Subtract:
+                    Write("-");
+                    break;
+                case BinaryOperator.Multiply:
+                    Write("*");
+                    break;
+            }
+            Write(" ");
+            node.Right.Visit(this);
+        }
+
+        public override void VisitLocalVariableWriteExpression(LocalVariableWriteExpression node)
+        {
+            Write(node.Name);
+        }
+
+        public override void VisitReturnStatement(ReturnStatement node)
+        {
+            EnsureNewLine();
+            Write("return");
+            if (node.Expression != null)
+            {
+                Write(" ");
+                node.Expression.Visit(this);
+            }
+            Write(";");
+        }
+
+        public override void VisitLocalVariableDeclareStatement(LocalVariableDeclareStatement node)
+        {
+            EnsureNewLine();
+            Write(node.Type.FullName);
+            Write(" ");
+            Write(node.Name);
+            Write(" = ");
+            if (node.Expression != null)
+            {
+                node.Expression.Visit(this);
+            }
+            Write(";");
+        }
+
+        public override void VisitMethodBodyDefinition(MethodBodyDefinition node)
+        {
+            OpenBrace();
+            VisitChild(node);
+            CloseBrace();
         }
 
     }

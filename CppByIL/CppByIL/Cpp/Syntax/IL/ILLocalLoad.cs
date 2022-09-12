@@ -3,12 +3,12 @@
 namespace CppByIL.Cpp.Syntax.IL
 {
 
-    public class LocalLoad : ILInstruction
+    public class ILLocalLoad : ILInstruction
     {
 
         public ILVariable Variable { get; }
 
-        internal LocalLoad(ILVariable variable)
+        internal ILLocalLoad(ILVariable variable)
         {
             Variable = variable;
         }

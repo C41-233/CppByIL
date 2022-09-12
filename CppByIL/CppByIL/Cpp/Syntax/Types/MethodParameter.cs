@@ -7,15 +7,15 @@ namespace CppByIL.Cpp.Syntax.Types
 
         public string Name { get; }
 
-        public TypeReference ParameterType { get; }
+        public CppTypeReference ParameterType { get; }
 
-        public MethodParameter(string name, TypeReference type)
+        public MethodParameter(string name, CppTypeReference type)
         {
             Name = name;
             ParameterType = type;
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitMethodParameter(this);
         }

@@ -3,7 +3,7 @@ using CppByIL.ILMeta.TypeSystem;
 
 namespace CppByIL.Cpp.Syntax.Types
 {
-    public class TypeReference : SyntaxNode
+    public class CppTypeReference : SyntaxNode
     {
 
         public string FullName
@@ -23,28 +23,28 @@ namespace CppByIL.Cpp.Syntax.Types
 
         private readonly ILTypeReference type;
 
-        internal TypeReference(ILTypeReference type)
+        internal CppTypeReference(ILTypeReference type)
         {
             this.type = type;
         }
 
-        public static TypeReference Void => Get(ILPrimitiveTypeReference.Void);
+        public static CppTypeReference Void => Get(ILPrimitiveTypeReference.Void);
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitTypeReference(this);
         }
 
-        private static readonly Dictionary<ILTypeReference, TypeReference> pool = new();
+        private static readonly Dictionary<ILTypeReference, CppTypeReference> pool = new();
 
-        public static TypeReference Get(ILTypeReference type)
+        public static CppTypeReference Get(ILTypeReference type)
         {
             if (pool.TryGetValue(type, out var node))
             {
                 return node;
             }
 
-            node = new TypeReference(type);
+            node = new CppTypeReference(type);
             pool.Add(type, node);
             return node;
         }

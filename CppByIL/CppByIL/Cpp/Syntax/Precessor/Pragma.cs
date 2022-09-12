@@ -12,7 +12,7 @@ namespace CppByIL.Cpp.Syntax.Precessor
             Value = value;
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitPragmaPrecessor(this);
         }

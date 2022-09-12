@@ -1,26 +1,21 @@
 ﻿using CppByIL.Cpp.Visitor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CppByIL.Cpp.Syntax.Expressions
 {
-    public class AssignmentExpression : Expression
+    public class AssignmentExpression : RightValueExpression
     {
 
-        public Expression LeftValue { get; }
+        public LeftValueExpression LeftValue => (LeftValueExpression)FirstChild!;
 
-        public Expression RightValue { get; }
+        public RightValueExpression RightValue => (RightValueExpression)LastChild!;
 
-        internal AssignmentExpression(Expression left, Expression right)
+        internal AssignmentExpression(LeftValueExpression left, RightValueExpression right)
         {
-            LeftValue = left;
-            RightValue = right;
+            AppendChild(left);
+            AppendChild(right);
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitAssignmentExpression(this);
         }

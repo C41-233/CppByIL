@@ -1,24 +1,22 @@
 ﻿using CppByIL.Cpp.Syntax;
-using CppByIL.Cpp.Syntax.Precessor;
-using CppByIL.Cpp.Syntax.Types;
 
 namespace CppByIL.Cpp.Visitor
 {
-    public partial class WriterVisitor
-    {
 
+    public abstract class TextWriterVisitor : Visitor
+    {
         private readonly TextWriter writer;
 
         private bool startOfNewLine = true;
         private bool padOfNewLine = false;
         private int pad;
 
-        public WriterVisitor(TextWriter writer)
+        protected TextWriterVisitor(TextWriter writer)
         {
             this.writer = writer;
         }
 
-        private void Write(string text)
+        protected void Write(string text)
         {
             if (!padOfNewLine)
             {
@@ -29,7 +27,7 @@ namespace CppByIL.Cpp.Visitor
             startOfNewLine = false;
         }
 
-        private void EnsureNewLine()
+        protected void EnsureNewLine()
         {
             if (!startOfNewLine)
             {
@@ -38,7 +36,7 @@ namespace CppByIL.Cpp.Visitor
         }
 
         //换行
-        private void NewLine()
+        protected void NewLine()
         {
             writer.WriteLine();
             startOfNewLine = true;
@@ -46,7 +44,7 @@ namespace CppByIL.Cpp.Visitor
         }
 
         //保证空一行
-        private void ForceNewLine()
+        protected void ForceNewLine()
         {
             EnsureNewLine();
             NewLine();
@@ -54,37 +52,31 @@ namespace CppByIL.Cpp.Visitor
 
         private void WritePad()
         {
-            for (var i=0; i<pad; i++)
+            for (var i = 0; i < pad; i++)
             {
-                writer.Write('\t'); 
+                writer.Write('\t');
             }
             padOfNewLine = true;
         }
 
-        private void OpenBrace()
-        {
-            EnsureNewLine();
-            Write("{");
-            EnsureNewLine();
-            PushPad();
-        }
-
-        private void CloseBrace()
-        {
-            PopPad();
-            EnsureNewLine();
-            Write("}");
-        }
-
-        private void PushPad()
+        protected void PushPad()
         {
             pad++;
         }
 
-        private void PopPad()
+        protected void PopPad()
         {
             pad--;
         }
 
+        protected void VisitChild(SyntaxNode node)
+        {
+            foreach (var child in node.Children)
+            {
+                child.Visit(this);
+            }
+        }
+
     }
+
 }

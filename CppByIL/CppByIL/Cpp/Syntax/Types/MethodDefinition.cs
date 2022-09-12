@@ -7,21 +7,21 @@ namespace CppByIL.Cpp.Syntax.Types
     public class MethodDefinition : SyntaxNode
     {
 
-        public TypeReference ReturnType { get; init; } = TypeReference.Void;
+        public CppTypeReference ReturnType { get; init; } = CppTypeReference.Void;
 
-        public TypeReference? DeclaringType { get; init; }
+        public CppTypeReference? DeclaringType { get; init; }
 
         public readonly IList<MethodParameter> ParameterList = new List<MethodParameter>();
         public string Name { get; }
 
-        public BlockStatement MethodBody { get; set; } = BlockStatement.Empty;
+        public MethodBodyDefinition MethodBody => (MethodBodyDefinition)FirstChild!;
 
         public MethodDefinition(string name)
         {
             Name = name;
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitMethodDefinition(this);
         }

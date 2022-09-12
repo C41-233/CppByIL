@@ -88,7 +88,7 @@ public class Program
             }
             var methodDeclaration = new MethodDeclaration(method.Name)
             {
-                ReturnType = TypeReference.Get(method.ReturnType),
+                ReturnType = CppTypeReference.Get(method.ReturnType),
                 IsStatic = method.IsStatic,
             };
             headerClassDeclaration.AppendChild(methodDeclaration);
@@ -97,7 +97,7 @@ public class Program
             {
                 var parameterDeclaration = new MethodParameter(
                     parameter.Name, 
-                    TypeReference.Get(parameter.ParameterType)
+                    CppTypeReference.Get(parameter.ParameterType)
                 );
                 methodDeclaration.ParameterList.Add(parameterDeclaration);
             }
@@ -130,32 +130,35 @@ public class Program
     {
         var node = new MethodDefinition(method.Name)
         {
-            ReturnType = TypeReference.Get(method.ReturnType),
-            DeclaringType = TypeReference.Get(method.DeclaringType),
+            ReturnType = CppTypeReference.Get(method.ReturnType),
+            DeclaringType = CppTypeReference.Get(method.DeclaringType),
         };
 
         foreach (var parameter in method.Parameters) 
         {
             node.ParameterList.Add(new MethodParameter(
                 parameter.Name,
-                TypeReference.Get(parameter.ParameterType)
+                CppTypeReference.Get(parameter.ParameterType)
             ));
         }
 
         var decompiler = new ILMethodBodyDecompiler(method);
         var body = decompiler.Decompile();
         MethodBodyTransform(body);
-        node.MethodBody = body;
+        node.AppendChild(body);
         return node;
     }
 
     private static readonly ITransformer[] transformers = new ITransformer[]
     {
-        new RemoveNopTransformer(),
-        new VariableSplitTransformer(),
+        new MergeILBlockTransformer(),
+        new MergeILVariableTransformer(),
+        new ILVariableTransformer(),
+        new ILOperatorTransform(),
+        new LocalVariableDeclarationTransformer(),
     };
 
-    private static void MethodBodyTransform(BlockStatement body)
+    private static void MethodBodyTransform(MethodBodyDefinition body)
     {
         var ctx = new TransformContext();
         foreach (var transformer in transformers)

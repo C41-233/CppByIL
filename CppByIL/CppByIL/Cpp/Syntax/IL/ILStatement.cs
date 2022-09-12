@@ -6,14 +6,11 @@ namespace CppByIL.Cpp.Syntax.IL
     public class ILStatement : Statement
     {
 
-        public ILInstruction Instruction { get; }
-
-        public ILStatement(ILInstruction instruction)
+        public ILStatement()
         {
-            Instruction = instruction;
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitILStatement(this);
         }

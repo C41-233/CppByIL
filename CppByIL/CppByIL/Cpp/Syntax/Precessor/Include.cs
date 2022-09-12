@@ -12,7 +12,7 @@ namespace CppByIL.Cpp.Syntax.Precessor
             FileName = filename;
         }
 
-        public override void Visit(ISynctaxNodeVisitor visitor)
+        public override void Visit(Visitor.Visitor visitor)
         {
             visitor.VisitIncludePrecessor(this);
         }
